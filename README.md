@@ -49,13 +49,7 @@ An interactive browser-based network topology visualizer and deterministic packe
    npm install
    ```
 
-3. Launch the development server:
+3. Launch development server:
    ```bash
    npm run dev
-   ```
-   Open `http://localhost:5173` in your browser.
-
-4. Run tests:
-   ```bash
-   npm run test
    ```
