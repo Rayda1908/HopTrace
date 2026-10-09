@@ -40,7 +40,7 @@ An interactive browser-based network topology visualizer and deterministic packe
 
 1. Clone the repository:
    ```bash
-   git clone [https://github.com/Rayda1908/HopTrace.git](https://github.com/Rayda1908/HopTrace.git)
+   git clone https://github.com/Rayda1908/HopTrace.git
    cd HopTrace
    ```
 
