@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   XCircle,
   Terminal,
+  Binary,
 } from 'lucide-react';
 import { useNetworkStore } from '../../store/networkStore';
 
@@ -14,6 +15,7 @@ export const PacketInspector: React.FC = () => {
   const simulationResult = useNetworkStore((state) => state.simulationResult);
   const isInspectorOpen = useNetworkStore((state) => state.isInspectorOpen);
   const setIsInspectorOpen = useNetworkStore((state) => state.setIsInspectorOpen);
+  const setIsWiresharkOpen = useNetworkStore((state) => state.setIsWiresharkOpen);
   const isSimulating = useNetworkStore((state) => state.isSimulating);
   const runPingSimulation = useNetworkStore((state) => state.runPingSimulation);
 
@@ -84,50 +86,63 @@ export const PacketInspector: React.FC = () => {
     >
       <div className="bg-zinc-900/95 backdrop-blur-xl border border-zinc-800 rounded-2xl shadow-2xl shadow-black/80 overflow-hidden flex flex-col transition-all duration-300">
         {/* Header Bar */}
-        <div className="flex items-center justify-between px-4 py-3 bg-zinc-950/80 border-b border-zinc-800/80 select-none">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-zinc-800/80 border border-zinc-700/60 text-zinc-300">
+        <div className="flex items-center justify-between gap-2 px-3 sm:px-4 py-2.5 bg-zinc-950 border-b border-zinc-800 select-none">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+            <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-zinc-800 border border-zinc-700/60 text-zinc-300 shrink-0">
               <Terminal className="w-4 h-4 text-sky-400" />
             </div>
 
-            <div className="flex items-center gap-2">
-              <h2 className="text-xs font-semibold text-zinc-100 font-sans tracking-wide">
+            <div className="flex items-center gap-2 min-w-0">
+              <h2 className="text-xs font-semibold text-zinc-100 font-sans tracking-wide shrink-0">
                 Packet Inspector
               </h2>
-              <span className="text-zinc-600">|</span>
-              <span className="text-[11px] font-mono text-zinc-400 hidden sm:inline">
+              <span className="text-zinc-600 hidden md:inline">|</span>
+              <span className="text-[11px] font-mono text-zinc-400 hidden md:inline truncate">
                 ICMP Trace Diagnostics
               </span>
             </div>
 
             {/* Status Pill */}
             {isSuccess ? (
-              <span className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-[11px] font-medium">
+              <span className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-[11px] font-medium shrink-0">
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>Success (0% loss)</span>
+                <span className="hidden sm:inline">Success (0% loss)</span>
+                <span className="sm:hidden">0% Loss</span>
               </span>
             ) : (
-              <span className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-400 font-mono text-[11px] font-medium">
+              <span className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-400 font-mono text-[11px] font-medium shrink-0">
                 <XCircle className="w-3.5 h-3.5" />
-                <span>Dropped (100% loss)</span>
+                <span className="hidden sm:inline">Dropped (100% loss)</span>
+                <span className="sm:hidden">Dropped</span>
               </span>
             )}
 
             {isSimulating && (
-              <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-sky-500/10 border border-sky-500/30 text-sky-400 font-mono text-[10px] animate-pulse">
+              <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-sky-500/10 border border-sky-500/30 text-sky-400 font-mono text-[10px] animate-pulse shrink-0">
                 <span className="w-1.5 h-1.5 rounded-full bg-sky-400" />
-                Traversing...
+                <span className="hidden sm:inline">Traversing...</span>
               </span>
             )}
           </div>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+            <button
+              type="button"
+              onClick={() => setIsWiresharkOpen(true)}
+              title="Open in Wireshark Packet Dissector"
+              aria-label="Open in Wireshark Packet Dissector"
+              className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium text-blue-300 bg-blue-950/40 border border-blue-500/30 hover:bg-blue-900/50 hover:text-blue-200 transition-colors cursor-pointer"
+            >
+              <Binary className="w-3.5 h-3.5 text-blue-400" />
+              <span className="hidden sm:inline">Wireshark</span>
+            </button>
+
             <button
               type="button"
               onClick={handleReplay}
               title="Replay packet trace"
               aria-label="Replay packet trace"
-              className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/80 transition-colors cursor-pointer"
+              className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-colors cursor-pointer"
             >
               <RotateCcw className="w-3.5 h-3.5" />
             </button>
@@ -137,7 +152,7 @@ export const PacketInspector: React.FC = () => {
               onClick={() => setIsMinimized((prev) => !prev)}
               title={isMinimized ? 'Expand inspector' : 'Minimize inspector'}
               aria-label={isMinimized ? 'Expand inspector' : 'Minimize inspector'}
-              className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/80 transition-colors cursor-pointer"
+              className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-colors cursor-pointer"
             >
               {isMinimized ? (
                 <ChevronUp className="w-4 h-4" />
@@ -151,7 +166,7 @@ export const PacketInspector: React.FC = () => {
               onClick={() => setIsInspectorOpen(false)}
               title="Close inspector"
               aria-label="Close inspector"
-              className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/80 transition-colors cursor-pointer"
+              className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-colors cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>

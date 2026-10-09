@@ -94,8 +94,8 @@ export type AppNode = Node<DeviceNodeData, 'host' | 'switch' | 'router'>;
 export type AppEdge = Edge;
 
 export const positionSchema = z.object({
-  x: z.number(),
-  y: z.number(),
+  x: z.number().finite().min(-10000).max(10000),
+  y: z.number().finite().min(-10000).max(10000),
 });
 
 export const hostNodeDataSchema = z.object({

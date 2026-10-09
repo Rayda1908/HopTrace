@@ -58,6 +58,8 @@ export interface NetworkState {
   setIsGuideOpen: (open: boolean) => void;
   setIsPingModalOpen: (open: boolean) => void;
   setIsInspectorOpen: (open: boolean) => void;
+  isWiresharkOpen: boolean;
+  setIsWiresharkOpen: (open: boolean) => void;
   setSimulationResult: (result: SimulationResult | null) => void;
   runPingSimulation: (sourceId: string, destId: string) => SimulationResult;
   loadPreset: (presetId: PresetType) => void;
@@ -194,6 +196,7 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
   isGuideOpen: false,
   isPingModalOpen: false,
   isInspectorOpen: false,
+  isWiresharkOpen: false,
   simulationResult: null,
   activePathEdgeId: null,
   activePathNodeId: null,
@@ -224,11 +227,28 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
     if (connection.source === connection.target) {
       return;
     }
-    const exists = edges.some(
-      (e) =>
-        (e.source === connection.source && e.target === connection.target) ||
-        (e.source === connection.target && e.target === connection.source)
-    );
+    const srcH = connection.sourceHandle ?? null;
+    const tgtH = connection.targetHandle ?? null;
+    const exists = edges.some((e) => {
+      const eSrcH = e.sourceHandle ?? null;
+      const eTgtH = e.targetHandle ?? null;
+      const sameDirect =
+        e.source === connection.source &&
+        e.target === connection.target &&
+        eSrcH === srcH &&
+        eTgtH === tgtH;
+      const sameReverse =
+        e.source === connection.target &&
+        e.target === connection.source &&
+        eSrcH === tgtH &&
+        eTgtH === srcH;
+      const unhandledDuplicate =
+        srcH === null &&
+        tgtH === null &&
+        ((e.source === connection.source && e.target === connection.target) ||
+         (e.source === connection.target && e.target === connection.source));
+      return sameDirect || sameReverse || unhandledDuplicate;
+    });
     if (exists) {
       return;
     }
@@ -254,9 +274,13 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
 
     const nextCount = counts[type] + 1;
     const offsetIndex = nodes.length % 8;
-    const defaultPosition = position ?? {
-      x: 200 + offsetIndex * 60,
-      y: 150 + offsetIndex * 50,
+    const rawX = position?.x;
+    const rawY = position?.y;
+    const safeX = typeof rawX === 'number' && Number.isFinite(rawX) ? rawX : (200 + offsetIndex * 60);
+    const safeY = typeof rawY === 'number' && Number.isFinite(rawY) ? rawY : (150 + offsetIndex * 50);
+    const defaultPosition = {
+      x: Math.max(-5000, Math.min(5000, safeX)),
+      y: Math.max(-5000, Math.min(5000, safeY)),
     };
 
     let newNode: AppNode;
@@ -385,6 +409,10 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
     set({ isInspectorOpen: open });
   },
 
+  setIsWiresharkOpen: (open: boolean) => {
+    set({ isWiresharkOpen: open });
+  },
+
   setSimulationResult: (result: SimulationResult | null) => {
     set({ simulationResult: result });
   },
@@ -496,14 +524,28 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
     let hostCount = 0;
     let switchCount = 0;
     let routerCount = 0;
-    for (const n of nodes) {
-      if (n.data.deviceType === 'host') hostCount++;
-      if (n.data.deviceType === 'switch') switchCount++;
-      if (n.data.deviceType === 'router') routerCount++;
-    }
+    const sanitizedNodes: AppNode[] = nodes.map((node) => {
+      const rawX = node.position?.x;
+      const rawY = node.position?.y;
+      const x = typeof rawX === 'number' && Number.isFinite(rawX)
+        ? Math.max(-5000, Math.min(5000, rawX))
+        : 100;
+      const y = typeof rawY === 'number' && Number.isFinite(rawY)
+        ? Math.max(-5000, Math.min(5000, rawY))
+        : 100;
+
+      if (node.data.deviceType === 'host') hostCount++;
+      if (node.data.deviceType === 'switch') switchCount++;
+      if (node.data.deviceType === 'router') routerCount++;
+
+      return {
+        ...node,
+        position: { x, y },
+      };
+    });
 
     set({
-      nodes,
+      nodes: sanitizedNodes,
       edges,
       selectedNodeId: null,
       simulationResult: null,
@@ -511,6 +553,7 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
       activePathNodeId: null,
       isSimulating: false,
       isInspectorOpen: false,
+      isWiresharkOpen: false,
       counts: {
         host: hostCount,
         switch: switchCount,
@@ -530,6 +573,7 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
       isSimulating: false,
       isInspectorOpen: false,
       isClearConfirmOpen: false,
+      isWiresharkOpen: false,
     });
   },
 }));

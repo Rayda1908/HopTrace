@@ -9,4 +9,12 @@ html, body, #root {
   background-color: #09090b;
   color: #f4f4f5;
   overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+.react-flow__edge-path,
+.react-flow__connection-path {
+  vector-effect: non-scaling-stroke;
+}
+

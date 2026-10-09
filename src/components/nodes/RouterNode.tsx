@@ -19,11 +19,11 @@ export const RouterNode: React.FC<NodeProps> = ({ id, data, selected }) => {
 
   return (
     <div
-      className={`group relative rounded-xl border bg-zinc-900/95 p-3 min-w-[240px] shadow-xl backdrop-blur-md transition-all duration-300 ${
+      className={`group relative rounded-xl border bg-zinc-900 p-3 w-64 min-w-[250px] shadow-lg transition-all duration-200 ${
         isPacketHere
-          ? 'border-sky-400 ring-4 ring-sky-400/70 shadow-2xl shadow-sky-500/50 scale-105'
+          ? 'border-amber-400 ring-2 ring-amber-400/60 shadow-amber-950/30'
           : selected
-          ? 'border-amber-500/80 ring-2 ring-amber-500/40 shadow-amber-950/40 shadow-lg'
+          ? 'border-amber-500/80 ring-2 ring-amber-500/30'
           : 'border-zinc-800 hover:border-zinc-700'
       }`}
     >
@@ -52,28 +52,31 @@ export const RouterNode: React.FC<NodeProps> = ({ id, data, selected }) => {
         className="!w-2.5 !h-2.5 !bg-zinc-700 hover:!bg-amber-400 !border-2 !border-zinc-950 transition-colors"
       />
 
-      <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-zinc-800/80">
-        <div className="flex items-center gap-2">
-          <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400">
+      <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-zinc-800">
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 shrink-0">
             <RouterIcon className="w-4 h-4" />
           </div>
-          <div>
-            <div className="text-xs font-semibold text-zinc-100 leading-tight">
+          <div className="min-w-0 flex-1">
+            <div
+              className="text-xs font-semibold text-zinc-100 leading-tight truncate"
+              title={routerData.label || 'Router'}
+            >
               {routerData.label || 'Router'}
             </div>
-            <div className="text-[10px] uppercase font-mono tracking-wider text-amber-400/90 font-medium">
+            <div className="text-[10px] uppercase font-mono tracking-wider text-amber-400/90 font-medium truncate">
               Layer 3 Gateway
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+        <div className="flex items-center gap-1.5 shrink-0">
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
           <button
             type="button"
             onClick={handleDelete}
             aria-label="Delete node"
-            className="p-1 rounded text-zinc-500 hover:text-red-400 hover:bg-red-950/40 opacity-0 group-hover:opacity-100 transition-opacity"
+            className="p-1 rounded text-zinc-500 hover:text-red-400 hover:bg-zinc-800 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
           >
             <Trash2 className="w-3.5 h-3.5" />
           </button>
@@ -81,9 +84,14 @@ export const RouterNode: React.FC<NodeProps> = ({ id, data, selected }) => {
       </div>
 
       <div className="mt-2.5 space-y-1.5">
-        <div className="flex items-center justify-between text-zinc-400 bg-zinc-950/60 px-2 py-1 rounded border border-zinc-800/50 font-mono text-[11px]">
-          <span className="text-[10px] text-zinc-500 uppercase tracking-wider font-sans">MAC</span>
-          <span className="text-zinc-300 text-[10px]">{routerData.mac || '00:00:00:00:00:00'}</span>
+        <div className="flex items-center justify-between text-zinc-400 bg-zinc-950 px-2 py-1 rounded border border-zinc-800/80 font-mono text-[11px] gap-2">
+          <span className="text-[10px] text-zinc-500 uppercase tracking-wider font-sans shrink-0">MAC</span>
+          <span
+            className="text-zinc-300 text-[10px] truncate text-right"
+            title={routerData.mac || '00:00:00:00:00:00'}
+          >
+            {routerData.mac || '00:00:00:00:00:00'}
+          </span>
         </div>
 
         <div className="space-y-1">
@@ -93,10 +101,13 @@ export const RouterNode: React.FC<NodeProps> = ({ id, data, selected }) => {
           {interfaces.map((iface) => (
             <div
               key={iface.id || iface.name}
-              className="flex items-center justify-between text-zinc-400 bg-zinc-950/60 px-2 py-1 rounded border border-zinc-800/50 font-mono text-[11px]"
+              className="flex items-center justify-between text-zinc-400 bg-zinc-950 px-2 py-1 rounded border border-zinc-800/80 font-mono text-[11px] gap-2"
             >
-              <span className="text-amber-400/90 font-medium">{iface.name}</span>
-              <span className="text-zinc-200">
+              <span className="text-amber-400/90 font-medium truncate shrink-0">{iface.name}</span>
+              <span
+                className="text-zinc-200 truncate text-right"
+                title={`${iface.ip}/${iface.cidr}`}
+              >
                 {iface.ip}/{iface.cidr}
               </span>
             </div>

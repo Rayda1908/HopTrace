@@ -15,6 +15,7 @@ import {
   Palette,
   ChevronDown,
   Check,
+  Binary,
 } from 'lucide-react';
 import { useNetworkStore } from '../store/networkStore';
 import {
@@ -34,6 +35,7 @@ export const Toolbar: React.FC = () => {
     setIsClearConfirmOpen,
     setIsGuideOpen,
     setIsPingModalOpen,
+    setIsWiresharkOpen,
     theme,
     setTheme,
     loadPreset,
@@ -201,6 +203,18 @@ export const Toolbar: React.FC = () => {
           >
             <Send className="w-3.5 h-3.5 text-purple-400" />
             <span className="hidden lg:inline">Simulate Ping</span>
+          </button>
+
+          {/* Wireshark Packet Dissector */}
+          <button
+            type="button"
+            onClick={() => setIsWiresharkOpen(true)}
+            title="Wireshark / Deep Packet Inspection"
+            aria-label="Wireshark / Deep Packet Inspection"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-medium text-blue-300 bg-blue-950/40 border border-blue-500/30 hover:bg-blue-900/50 hover:text-blue-200 hover:border-blue-400 active:scale-95 transition-all cursor-pointer shadow-sm"
+          >
+            <Binary className="w-3.5 h-3.5 text-blue-400" />
+            <span className="hidden lg:inline">Wireshark</span>
           </button>
 
           {/* Presets Dropdown */}

@@ -43,20 +43,53 @@ export const NetworkCanvas: React.FC = () => {
 
   const isValidConnection = useCallback(
     (connection: Connection | Edge) => {
+      // Prevent self-connection
       if (connection.source === connection.target) {
         return false;
       }
-      return !edges.some(
-        (e) =>
-          (e.source === connection.source && e.target === connection.target) ||
-          (e.source === connection.target && e.target === connection.source)
-      );
+      const srcH = connection.sourceHandle ?? null;
+      const tgtH = connection.targetHandle ?? null;
+
+      // Prevent duplicate edge between same handle pair
+      return !edges.some((e) => {
+        const eSrcH = e.sourceHandle ?? null;
+        const eTgtH = e.targetHandle ?? null;
+        const sameDirect =
+          e.source === connection.source &&
+          e.target === connection.target &&
+          eSrcH === srcH &&
+          eTgtH === tgtH;
+        const sameReverse =
+          e.source === connection.target &&
+          e.target === connection.source &&
+          eSrcH === tgtH &&
+          eTgtH === srcH;
+        const unhandledDuplicate =
+          srcH === null &&
+          tgtH === null &&
+          ((e.source === connection.source && e.target === connection.target) ||
+           (e.source === connection.target && e.target === connection.source));
+        return sameDirect || sameReverse || unhandledDuplicate;
+      });
     },
     [edges]
   );
 
+  const theme = useNetworkStore((state) => state.theme);
+  const isBlueprint = theme === 'blueprint';
+
   const renderedEdges = React.useMemo(() => {
-    if (!simulationResult) return edges;
+    if (!simulationResult) {
+      return edges.map((e) => ({
+        ...e,
+        style: {
+          ...e.style,
+          stroke: isBlueprint ? '#3b82f6' : '#52525b',
+          strokeWidth: 2,
+          vectorEffect: 'non-scaling-stroke' as const,
+        },
+      }));
+    }
 
     return edges.map((edge) => {
       const isTraversing = edge.id === activePathEdgeId;
@@ -68,8 +101,8 @@ export const NetworkCanvas: React.FC = () => {
           animated: true,
           style: {
             stroke: simulationResult.status === 'success' ? '#10b981' : '#f43f5e',
-            strokeWidth: 4,
-            filter: 'drop-shadow(0 0 12px rgba(16, 185, 129, 0.9))',
+            strokeWidth: 3,
+            vectorEffect: 'non-scaling-stroke' as const,
           },
         };
       }
@@ -80,8 +113,8 @@ export const NetworkCanvas: React.FC = () => {
           animated: true,
           style: {
             stroke: simulationResult.status === 'success' ? '#38bdf8' : '#f43f5e',
-            strokeWidth: 3,
-            filter: 'drop-shadow(0 0 6px rgba(56, 189, 248, 0.6))',
+            strokeWidth: 2.5,
+            vectorEffect: 'non-scaling-stroke' as const,
           },
         };
       }
@@ -91,31 +124,20 @@ export const NetworkCanvas: React.FC = () => {
         animated: false,
         style: {
           ...edge.style,
-          stroke: '#3f3f46',
-          opacity: isSimulating ? 0.25 : 0.6,
+          stroke: '#27272a',
+          opacity: isSimulating ? 0.35 : 0.6,
+          vectorEffect: 'non-scaling-stroke' as const,
         },
       };
     });
-  }, [edges, simulationResult, activePathEdgeId, isSimulating]);
-
-  const theme = useNetworkStore((state) => state.theme);
-  const isBlueprint = theme === 'blueprint';
+  }, [edges, simulationResult, activePathEdgeId, isSimulating, isBlueprint]);
 
   return (
     <div
       className={`w-full h-full relative overflow-hidden select-none transition-colors duration-300 ${
-        isBlueprint ? 'bg-[#0a1128]' : 'bg-zinc-950'
+        isBlueprint ? 'bg-[#0a1128]' : 'bg-[#09090b]'
       }`}
     >
-      {/* Subtle ambient radial glow mesh layer */}
-      <div
-        className={`pointer-events-none absolute inset-0 z-0 transition-opacity duration-300 ${
-          isBlueprint
-            ? 'bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(37,99,235,0.16),rgba(30,58,138,0.06),rgba(0,0,0,0))]'
-            : 'bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(14,165,233,0.08),rgba(255,255,255,0))]'
-        }`}
-      />
-
       <ReactFlow
         nodes={nodes}
         edges={renderedEdges}
@@ -129,34 +151,40 @@ export const NetworkCanvas: React.FC = () => {
         fitView
         fitViewOptions={{ padding: 0.3 }}
         minZoom={0.2}
-        maxZoom={2.5}
+        maxZoom={2.0}
         connectionRadius={35}
         connectionLineType={ConnectionLineType.SmoothStep}
         connectionLineStyle={{
-          stroke: isBlueprint ? '#60a5fa' : '#38bdf8',
-          strokeWidth: 2.5,
-          strokeDasharray: '5,5',
+          stroke: isBlueprint ? '#60a5fa' : '#71717a',
+          strokeWidth: 2,
+          strokeDasharray: '4,4',
         }}
         defaultEdgeOptions={{
           type: 'smoothstep',
           animated: true,
-          style: { stroke: isBlueprint ? '#60a5fa' : '#38bdf8', strokeWidth: 2 },
+          style: {
+            stroke: isBlueprint ? '#60a5fa' : '#52525b',
+            strokeWidth: 2,
+            vectorEffect: 'non-scaling-stroke' as const,
+          },
         }}
         proOptions={{ hideAttribution: true }}
       >
         <Background
-          variant={BackgroundVariant.Lines}
-          gap={24}
-          size={1}
+          variant={BackgroundVariant.Dots}
+          gap={20}
+          size={1.2}
           color={isBlueprint ? '#1e3a8a' : '#27272a'}
           className="bg-transparent"
         />
         <Controls
           showInteractive={false}
-          className="!bg-zinc-900/90 !backdrop-blur-md !border !border-zinc-800 !rounded-xl !shadow-2xl overflow-hidden [&>button]:!bg-zinc-900 [&>button]:!border-zinc-800 [&>button]:!text-zinc-300 [&>button:hover]:!bg-zinc-800"
+          position="top-left"
+          style={{ marginTop: '72px', marginLeft: '12px' }}
+          className="!bg-zinc-900 !border !border-zinc-800 !rounded-xl !shadow-xl overflow-hidden [&>button]:!bg-zinc-900 [&>button]:!border-zinc-800 [&>button]:!text-zinc-300 [&>button:hover]:!bg-zinc-800"
         />
         <MiniMap
-          nodeStrokeWidth={3}
+          nodeStrokeWidth={2}
           nodeColor={(n) => {
             if (n.type === 'host') return '#10b981';
             if (n.type === 'switch') return '#6366f1';
@@ -164,7 +192,7 @@ export const NetworkCanvas: React.FC = () => {
             return '#71717a';
           }}
           maskColor="rgba(9, 9, 11, 0.75)"
-          className="!bg-zinc-950/90 !backdrop-blur-md !border !border-zinc-800 !rounded-xl !shadow-xl overflow-hidden hidden md:block"
+          className="!bg-zinc-950 !border !border-zinc-800 !rounded-xl !shadow-xl overflow-hidden hidden md:block"
         />
       </ReactFlow>
     </div>
