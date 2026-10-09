@@ -1,32 +1,44 @@
-# React + TypeScript + Vite
+# HopTrace
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+An interactive browser-based network topology visualizer and deterministic packet routing simulator. HopTrace bridges the gap between theoretical network diagrams and heavy desktop emulators, providing real-time CIDR validation, hop-by-hop packet traversal, and an integrated 3-pane Web Wireshark packet dissector.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Key Features
 
-## React Compiler
+- **Interactive Topology Canvas:** Drag-and-drop Host (L3), Switch (L2), and Router (L3 Gateway) equipment with automated link connection validation.
+- **Client-Side Interface Configuration:** Slide-over drawer with real-time Zod schema validation for IPv4 octets, CIDR subnet masks, and MAC addresses.
+- **Deterministic Routing Engine:** Pure TypeScript simulation of ARP resolution, same-subnet local switching, Default Gateway traversal, and TTL decrements.
+- **Integrated Web Wireshark Dissector:** 3-pane deep packet inspector featuring:
+  - **Packet List:** Chronological sequence of captured ARP and ICMP frames with microsecond deltas.
+  - **Packet Details Tree:** Hierarchical protocol breakdown (Frame, Ethernet II, IPv4, ICMP).
+  - **Hex Dump:** 16-byte aligned raw hexadecimal and ASCII byte preview.
+- **Topology Presets & Portability:** Preconfigured templates (*Simple LAN*, *Dual Routed Subnet*, *Unreachable Gateway*) and JSON workspace import/export.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the Oxlint configuration
+## Tech Stack
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+- **Framework:** React 19, TypeScript
+- **Canvas / Graph:** [@xyflow/react](https://reactflow.dev/) (React Flow)
+- **State Management:** Zustand
+- **Schema Validation:** Zod
+- **Styling:** Tailwind CSS v4
+- **Testing:** Vitest (52 passing unit tests)
+- **Build & Tooling:** Vite, oxlint
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
-```
+---
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18.x or later
+- npm / pnpm / yarn
+
+### Installation & Run
+
+1. Clone the repository:
+   ```bash
+   git clone [https://github.com/Rayda1908/HopTrace.git](https://github.com/Rayda1908/HopTrace.git)
+   cd HopTrace
