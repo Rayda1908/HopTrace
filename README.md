@@ -39,6 +39,23 @@ An interactive browser-based network topology visualizer and deterministic packe
 ### Installation & Run
 
 1. Clone the repository:
-git clone https://github.com/Rayda1908/HopTrace.git 
+   ```bash
+   git clone [https://github.com/Rayda1908/HopTrace.git](https://github.com/Rayda1908/HopTrace.git)
+   cd HopTrace
+   ```
 
-cd HopTrace
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Launch the development server:
+   ```bash
+   npm run dev
+   ```
+   Open `http://localhost:5173` in your browser.
+
+4. Run tests:
+   ```bash
+   npm run test
+   ```
